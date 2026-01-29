@@ -165,17 +165,35 @@ const ChatBox: React.FC<ChatBoxProps> = ({ onStartCall, onViewResources }) => {
     setIsLoading(true);
     setSources([]);
 
-    try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
-      const responseStream = await ai.models.generateContentStream({
-        model: 'gemini-3-flash-preview',
-        contents: [...messages, userMsg].map(m => ({ role: m.role, parts: [{ text: m.text }] })),
-        config: { 
-          systemInstruction: SYSTEM_INSTRUCTION + "\nProfessional Output Formatting: ALWAYS use a professional 'Heading followed by Subtext' structure. Start with a relevant heading for each point. Keep AI responses strictly left-aligned. Use bold text for emphasis within paragraphs.",
-          tools: [{ googleSearch: {} }],
-          temperature: 0.7,
-        }
-      });
+try {
+  const res = await fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: text }),
+  });
+
+  const data = await res.json();
+
+  const botMsg: ChatMessage = {
+    role: "assistant",
+    text: data.reply,
+    timestamp: new Date(),
+  };
+
+  setMessages(prev => [...prev, botMsg]);
+} catch (error) {
+  setMessages(prev => [
+    ...prev,
+    {
+      role: "assistant",
+      text: "Network issue. Please try again.",
+      timestamp: new Date(),
+    },
+  ]);
+} finally {
+  setIsLoading(false);
+}
+
 
       let fullText = '';
       const aiMsg: ChatMessage = { role: 'model', text: '', timestamp: new Date(), isStreaming: true };
