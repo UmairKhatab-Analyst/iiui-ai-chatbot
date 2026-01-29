@@ -1,0 +1,8 @@
+{
+  "name": "IIU Student Navigator",
+  "description": "An intelligent AI companion designed for the International Islamic University students (H-10 Campus). Provides academic support, logistics info, and administrative guidance via voice and text.",
+  "requestFramePermissions": [
+    "microphone",
+    "camera"
+  ]
+}
